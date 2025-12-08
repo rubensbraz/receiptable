@@ -106,6 +106,10 @@ body {
     letter-spacing: -0.5px;
 }
 
+#payment_description {
+    padding: 0px !important;
+}
+
 /* Date Picker Styling */
 .date-picker-input {
     border: none;
@@ -311,7 +315,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 /* Prevents elements from being split across pages in PDF */
 .break-inside-avoid {
-    page-break-inside: avoid;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    display: block;
+}
+
+.signature-wrapper {
+    page-break-inside: avoid !important;
 }
 
 /* Ensures the PDF container is always white */

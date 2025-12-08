@@ -58,7 +58,7 @@ const receiptApp = (function () {
             time_label: "Time:",
             receipt_number_label: "Receipt #",
             received_from_title: "Received From",
-            from_title: "Issuer / Merchant",
+            from_title: "Received By",
             notes_title: "Notes",
             col_description: "Payment For",
             total_label: "Amount",
@@ -76,12 +76,12 @@ const receiptApp = (function () {
             placeholders: {
                 received_from_name: "Name",
                 received_from_address: "Address",
-                issuer_name: "Company",
+                received_from_phone: "Phone",
+                received_from_email: "Email",
+                issuer_name: "Name",
                 issuer_address: "Address",
                 issuer_phone: "Phone",
                 issuer_email: "Email",
-                received_from_phone: "Phone",
-                received_from_email: "Email",
                 received_by: "Name",
                 receipt_notes: "Additional notes...",
                 item_desc: "Description of service..."
@@ -93,7 +93,7 @@ const receiptApp = (function () {
             time_label: "Hora:",
             receipt_number_label: "Recibo Nº",
             received_from_title: "Recebido De",
-            from_title: "Emitente",
+            from_title: "Recebido Por",
             notes_title: "Obs.",
             col_description: "Referente a",
             total_label: "Valor",
@@ -111,12 +111,12 @@ const receiptApp = (function () {
             placeholders: {
                 received_from_name: "Nome",
                 received_from_address: "Endereço",
+                received_from_phone: "Telefone",
+                received_from_email: "Email",
                 issuer_name: "Nome",
                 issuer_address: "Endereço",
                 issuer_phone: "Telefone",
                 issuer_email: "Email",
-                received_from_phone: "Telefone",
-                received_from_email: "Email",
                 received_by: "Nome",
                 receipt_notes: "Observações...",
                 item_desc: "Descrição do serviço..."
@@ -127,8 +127,8 @@ const receiptApp = (function () {
             date_label: "日付:",
             time_label: "時間:",
             receipt_number_label: "No.",
-            received_from_title: "宛名",
-            from_title: "発行者",
+            received_from_title: "受信元",
+            from_title: "受領者",
             notes_title: "備考",
             col_description: "但し書き",
             total_label: "金額",
@@ -146,12 +146,12 @@ const receiptApp = (function () {
             placeholders: {
                 received_from_name: "顧客名",
                 received_from_address: "住所",
+                received_from_phone: "電話番号",
+                received_from_email: "メール",
                 issuer_name: "自社名",
                 issuer_address: "自社住所",
                 issuer_phone: "電話番号",
                 issuer_email: "メール",
-                received_from_phone: "電話番号",
-                received_from_email: "メール",
                 received_by: "担当者名",
                 receipt_notes: "備考...",
                 item_desc: "品目内容..."
@@ -189,6 +189,7 @@ const receiptApp = (function () {
         changeLanguage(state.lang);
         updateDateDisplay();
         updateTimeDisplay();
+        updateCurrencySymbols();
 
         // Ensure Receipt Number exists
         const recNumField = document.querySelector('#receipt_number');
@@ -208,10 +209,21 @@ const receiptApp = (function () {
      */
     function setupSignaturePad() {
         const canvas = document.querySelector('#signature-pad canvas');
-        const ratio = Math.max(window.devicePixelRatio || 1, 1);
-        canvas.width = canvas.offsetWidth * ratio;
-        canvas.height = canvas.offsetHeight * ratio;
-        canvas.getContext("2d").scale(ratio, ratio);
+
+        function resizeCanvas() {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            let data = null;
+            if(signaturePad) data = signaturePad.toDataURL();
+
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+
+            if(signaturePad && data) signaturePad.fromDataURL(data);
+        }
+        
+        resizeCanvas();
+        window.addEventListener("resize", resizeCanvas);
 
         signaturePad = new SignaturePad(canvas, {
             backgroundColor: 'rgba(255, 255, 255, 0)',
@@ -392,6 +404,16 @@ const receiptApp = (function () {
         return curr ? curr.symbol : '$';
     }
 
+    /**
+     * Refreshes symbols in the table when currency changes.
+     */
+    function updateCurrencySymbols() {
+        const symbol = getSymbol();
+        document.querySelectorAll('.currency-symbol').forEach(el => {
+            el.innerText = symbol;
+        });
+    }
+
     // ==========================================================================
     // 5. PERSISTENCE (LocalStorage)
     // ==========================================================================
@@ -434,6 +456,15 @@ const receiptApp = (function () {
         }
 
         return `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+    }
+
+    /**
+     * Updates the input field and the browser URL without reloading.
+     */
+    function updateLiveUrl() {
+        const link = generateShareUrl();
+        document.getElementById('share_link').value = link;
+        window.history.replaceState({}, '', link);
     }
 
     /**
@@ -520,6 +551,9 @@ const receiptApp = (function () {
                     el.innerText = '';
                 }
             });
+            // Payment Description & Amount
+            document.getElementById('payment_description').value = '';
+            document.getElementById('payment_amount').value = '';
 
             // 2. Reset Receipt Number
             document.getElementById('receipt_number').innerText = generateReceiptNumber();
@@ -530,10 +564,20 @@ const receiptApp = (function () {
             updateDateDisplay();
             updateTimeDisplay();
 
-            // 4. Clear URL parameters
+            // 4. Reset Signature
+            if (signaturePad) {
+                signaturePad.clear(); // Limpa o desenho
+                // Mostra novamente o texto "Assine Aqui"
+                const placeholder = document.querySelector('.signature-placeholder');
+                if (placeholder) {
+                    placeholder.style.display = 'block';
+                }
+            }
+
+            // 5. Clear URL parameters
             window.history.replaceState({}, '', window.location.pathname);
 
-            // 5. Force Save to overwrite LocalStorage with the clean state
+            // 6. Force Save to overwrite LocalStorage with the clean state
             // Note: This preserves 'state' (lang, currency, etc) because saveToLocal reads from the UI Selects which we didn't touch
             saveToLocal();
         }
@@ -621,7 +665,7 @@ const receiptApp = (function () {
             // Converts the original signature into a Base64 image
             const imgData = originalCanvas.toDataURL('image/png');
             
-            // Create an image element.
+            // Create an image element
             const img = document.createElement('img');
             img.src = imgData;
             img.style.width = '100%';
@@ -676,7 +720,21 @@ const receiptApp = (function () {
             span.style.border = "none";
             span.style.padding = "0";
             span.style.backgroundColor = "transparent";
+            span.style.whiteSpace = "pre-wrap"; 
+            span.style.wordBreak = "break-word";
+            span.style.overflowWrap = "break-word";
             span.classList.remove('form-control');
+
+            // Alignment & Display Logic
+            if (input.classList.contains('text-end')) {
+                span.style.textAlign = 'right';
+                span.style.display = 'block';
+            } else if (input.classList.contains('text-center')) {
+                span.style.textAlign = 'center';
+            } else {
+                span.style.textAlign = 'left';
+                span.style.display = 'block';
+            }
 
             // Date Formatting
             if (input.type === 'date') {
@@ -709,7 +767,9 @@ const receiptApp = (function () {
             else {
                 span.innerText = input.value;
                 span.style.textAlign = input.style.textAlign || "center";
-                if (input.classList.contains('item-description')) span.style.textAlign = "left";
+                if (input.id === 'payment_description' || input.classList.contains('item-description')) {
+                    span.style.textAlign = "left";
+                }
             }
 
             if (input.parentNode) input.parentNode.replaceChild(span, input);
