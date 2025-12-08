@@ -20,6 +20,8 @@
 
 **Receiptable** é uma ferramenta leve, baseada no navegador, projetada para criar recibos profissionais e bonitos em segundos. Sem cadastro, sem servidores backend e sem rastreamento de dados. Tudo acontece localmente no seu navegador.
 
+> 💡 **Dica:** Precisa criar **Faturas**? Conheça nosso projeto irmão [Invoicable](https://github.com/TetsuakiBaba/invoicable).
+
 ![Receiptable Screenshot](./example.png)
 
 ## ✨ Funcionalidades Principais

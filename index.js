@@ -504,6 +504,8 @@ const receiptApp = (function () {
      */
     function saveToLocal() {
         const data = collectReceiptData();
+        // Do not save receipt_number to local storage to ensure a new random number on reload
+        delete data.receipt_number;
         localStorage.setItem('receiptData', JSON.stringify(data));
     }
 
@@ -528,7 +530,7 @@ const receiptApp = (function () {
      */
     function generateShareUrl() {
         const data = collectReceiptData();
-        const { signature_data, ...urlData } = data;
+        const { signature_data, receipt_number, ...urlData } = data;
 
         // Convert to URL params
         const params = new URLSearchParams();
@@ -710,7 +712,7 @@ const receiptApp = (function () {
         const params = new URLSearchParams(window.location.search);
 
         // We consider it "loaded from URL" if there is at least 1 item below
-        const keysToCheck = ['receipt_number', 'payment_description', 'issuer_name', 'received_from_name', 'payment_amount'];
+        const keysToCheck = ['payment_description', 'issuer_name', 'received_from_name', 'payment_amount'];
         const hasData = keysToCheck.some(key => params.has(key));
         if (!hasData) return false;
 
