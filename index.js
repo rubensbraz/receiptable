@@ -656,20 +656,22 @@ const receiptApp = (function () {
             updateDateDisplay();
             updateTimeDisplay();
 
-            // 4. Reset Signature
+            // 4. Update Receipt Sentence
+            updateReceiptSentence();
+
+            // 5. Reset Signature
             if (signaturePad) {
-                signaturePad.clear(); // Limpa o desenho
-                // Mostra novamente o texto "Assine Aqui"
+                signaturePad.clear();
                 const placeholder = document.querySelector('.signature-placeholder');
                 if (placeholder) {
                     placeholder.style.display = 'block';
                 }
             }
 
-            // 5. Clear URL parameters
+            // 6. Clear URL parameters
             window.history.replaceState({}, '', window.location.pathname);
 
-            // 6. Force Save to overwrite LocalStorage with the clean state
+            // 7. Force Save to overwrite LocalStorage with the clean state
             // Note: This preserves 'state' (lang, currency, etc) because saveToLocal reads from the UI Selects which we didn't touch
             saveToLocal();
         }
@@ -726,7 +728,6 @@ const receiptApp = (function () {
      */
     function downloadPDF() {
         const element = document.getElementById('pdf_element');
-        const receiptNum = document.getElementById('receipt_number').innerText || 'receipt';
 
         // Clone DOM to clean up for print without affecting UI
         const clone = element.cloneNode(true);
@@ -877,9 +878,12 @@ const receiptApp = (function () {
         document.body.appendChild(clone);
 
         // Configuration
+        const receiptNum = document.getElementById('receipt_number').innerText || 'receipt';
+        const receivedBy = document.getElementById('issuer_name').innerText.trim() || 'person';
+        const paymentReason = document.getElementById('payment_description').value.trim() || 'description';
         const opt = {
             margin: [5, 5, 5, 5],
-            filename: `receipt_${receiptNum}.pdf`,
+            filename: `receipt_${receiptNum}_${receivedBy}_${paymentReason}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
