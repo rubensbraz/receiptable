@@ -64,6 +64,7 @@ const receiptApp = (function () {
             total_label: "Amount",
             signature_title: "Signature",
             received_by_label: "Received By",
+            sentence_template: "I, {issuer}, received from {payer} the amount of {amount} for payment of {reason}.",
             sign_here: "Sign Here",
             btn_clear_sign: "Clear signature",
             btn_copy_link: "Copy Link",
@@ -99,6 +100,7 @@ const receiptApp = (function () {
             total_label: "Valor",
             signature_title: "Assinatura",
             received_by_label: "Recebido Por",
+            sentence_template: "Eu, {issuer}, recebi de {payer} a quantia de {amount} referente a {reason}.",
             sign_here: "Assine Aqui",
             btn_clear_sign: "Limpar assinatura",
             btn_copy_link: "Copiar Link",
@@ -134,6 +136,7 @@ const receiptApp = (function () {
             total_label: "金額",
             signature_title: "署名",
             received_by_label: "受領者",
+            sentence_template: "私 {issuer} は、{payer} から {reason} として {amount} を受領しました。",
             sign_here: "ここに署名",
             btn_clear_sign: "明確な署名",
             btn_copy_link: "リンク作成",
@@ -170,7 +173,7 @@ const receiptApp = (function () {
         populateCurrencySelect();
         setupSignaturePad();
         setupEventListeners();
-        
+
         // PRIORITY: Handle URL parameters first
         // If data is found in URL, we use it and SKIP LocalStorage to ensure the link is the source of truth
         const loadedFromUrl = handleUrlParameters();
@@ -213,15 +216,15 @@ const receiptApp = (function () {
         function resizeCanvas() {
             const ratio = Math.max(window.devicePixelRatio || 1, 1);
             let data = null;
-            if(signaturePad) data = signaturePad.toDataURL();
+            if (signaturePad) data = signaturePad.toDataURL();
 
             canvas.width = canvas.offsetWidth * ratio;
             canvas.height = canvas.offsetHeight * ratio;
             canvas.getContext("2d").scale(ratio, ratio);
 
-            if(signaturePad && data) signaturePad.fromDataURL(data);
+            if (signaturePad && data) signaturePad.fromDataURL(data);
         }
-        
+
         resizeCanvas();
         window.addEventListener("resize", resizeCanvas);
 
@@ -275,6 +278,7 @@ const receiptApp = (function () {
         document.getElementById('currencySelect').addEventListener('change', (e) => {
             state.currency = e.target.value;
             updateCurrencySymbols();
+            updateReceiptSentence();
         });
 
         document.getElementById('dateFormatSelect').addEventListener('change', (e) => {
@@ -287,6 +291,8 @@ const receiptApp = (function () {
             updateTimeDisplay();
         });
 
+        document.getElementById('btn_clear_sign').addEventListener('click', clearSignature);
+
         // Prevents pasting HTML formatting into editable fields
         document.querySelectorAll('[contenteditable]').forEach(el => {
             el.addEventListener('paste', (e) => {
@@ -294,10 +300,29 @@ const receiptApp = (function () {
                 const text = (e.originalEvent || e).clipboardData.getData('text/plain');
                 document.execCommand('insertText', false, text);
             });
+
+            el.addEventListener('blur', (e) => {
+                if (e.target.innerText.trim() === '') {
+                    e.target.innerHTML = '';
+                }
+            });
         });
 
-        // Signature clear already handled in setupSignaturePad helpers or direct binding
-        document.getElementById('btn_clear_sign').addEventListener('click', clearSignature);
+        // Listen for input on these specific fields to update the legal sentence in real-time
+        const sentenceTriggers = [
+            'issuer_name',
+            'received_from_name',
+            'payment_amount',
+            'payment_description'
+        ];
+
+        sentenceTriggers.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                // 'input' event works for both <input> and contenteditable elements
+                el.addEventListener('input', updateReceiptSentence);
+            }
+        });
     }
 
     // ==========================================================================
@@ -347,7 +372,7 @@ const receiptApp = (function () {
         const month = String(today.getMonth() + 1).padStart(2, '0');
         const day = String(today.getDate()).padStart(2, '0');
         const rand = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-        return `REC-${year}${month}${day}-${rand}`;
+        return `REC-${year}-${month}-${day}-${rand}`;
     }
 
     /**
@@ -355,9 +380,7 @@ const receiptApp = (function () {
      * @param {string} langCode - The language code (en, pt, jp).
      */
     function changeLanguage(langCode) {
-        state.lang = langCode;
-        if (!translations[langCode]) return;
-
+        state.lang = translations[langCode] ? langCode : 'en';
         const t = translations[langCode];
 
         // Update static text elements
@@ -385,6 +408,9 @@ const receiptApp = (function () {
         }
 
         document.getElementById('payment_description').placeholder = t.placeholders.item_desc;
+
+        // Trigger sentence update when language changes
+        updateReceiptSentence();
     }
 
     /**
@@ -412,6 +438,61 @@ const receiptApp = (function () {
         document.querySelectorAll('.currency-symbol').forEach(el => {
             el.innerText = symbol;
         });
+    }
+
+    /**
+     * Helper to prevent XSS by escaping HTML characters.
+     */
+    function escapeHtml(text) {
+        if (!text) return '';
+        return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    /**
+     * Generates the dynamic legal sentence based on current input values.
+     * Replaces placeholders like {issuer} with actual text.
+     */
+    function updateReceiptSentence() {
+        const t = translations[state.lang];
+        let template = t.sentence_template;
+
+        // Helper to get value from Input or ContentEditable
+        const getVal = (id) => {
+            const el = document.getElementById(id);
+            if (!el) return '___';
+            // Returns value for inputs, innerText for editable spans
+            return el.value || el.innerText || '___';
+        };
+
+        // Get current values
+        const issuer = getVal('issuer_name');
+        const payer = getVal('received_from_name');
+        let amount = getVal('payment_amount');
+        const reason = getVal('payment_description');
+
+        // Format amount if it is a number
+        if (amount !== '___' && !isNaN(parseFloat(amount))) {
+            const symbol = getSymbol();
+            amount = `${symbol} ${parseFloat(amount)}`;
+        }
+
+        // Replace placeholders
+        const text = template
+            .replace('{issuer}', `<b>${escapeHtml(issuer)}</b>`)
+            .replace('{payer}', `<b>${escapeHtml(payer)}</b>`)
+            .replace('{amount}', `<b>${escapeHtml(amount)}</b>`)
+            .replace('{reason}', `<b>${escapeHtml(reason)}</b>`);
+
+        // Update the DOM element
+        const sentenceEl = document.getElementById('receipt_sentence');
+        if (sentenceEl) {
+            sentenceEl.innerHTML = text;
+        }
     }
 
     // ==========================================================================
@@ -482,8 +563,14 @@ const receiptApp = (function () {
             changeColor(data.color);
         }
 
-        const setTxt = (id, val) => { if (val) document.getElementById(id).innerText = val; };
-        const setVal = (id, val) => { if (val) document.getElementById(id).value = val; };
+        const setTxt = (id, val) => {
+            const el = document.getElementById(id);
+            if (el && val) el.innerText = val;
+        };
+        const setVal = (id, val) => {
+            const el = document.getElementById(id);
+            if (el && val) el.value = val;
+        };
 
         // Restore text fields
         ['receipt_number', 'issuer_name', 'issuer_address', 'issuer_phone', 'issuer_email',
@@ -510,8 +597,14 @@ const receiptApp = (function () {
      * @returns {object} Data object.
      */
     function collectReceiptData() {
-        const getTxt = (id) => document.getElementById(id).innerText;
-        const getVal = (id) => document.getElementById(id).value;
+        const getTxt = (id) => {
+            const el = document.getElementById(id);
+            return el ? el.innerText : '';
+        };
+        const getVal = (id) => {
+            const el = document.getElementById(id);
+            return el ? el.value : '';
+        };
 
         return {
             receipt_number: getTxt('receipt_number'),
@@ -527,7 +620,6 @@ const receiptApp = (function () {
             received_from_email: getTxt('received_from_email'),
             payment_description: getVal('payment_description'),
             payment_amount: getVal('payment_amount'),
-            received_by: getTxt('received_by'),
             receipt_notes: getTxt('receipt_notes'),
             signature_data: signaturePad ? signaturePad.toDataURL() : null,
             lang: state.lang,
@@ -543,7 +635,7 @@ const receiptApp = (function () {
      */
     function clearData() {
         const t = translations[state.lang] || translations['en'];
-        
+
         if (confirm(t.confirm_clear)) {
             // 1. Clear all editable text fields (except Receipt Number, which we regen)
             document.querySelectorAll('.editable-field').forEach(el => {
@@ -614,9 +706,11 @@ const receiptApp = (function () {
      */
     function handleUrlParameters() {
         const params = new URLSearchParams(window.location.search);
-        
-        // We consider it "loaded from URL" if there is at least an receipt number or items
-        if (!params.has('receipt_number') && !params.has('payment_description')) return false;
+
+        // We consider it "loaded from URL" if there is at least 1 item below
+        const keysToCheck = ['receipt_number', 'payment_description', 'issuer_name', 'received_from_name', 'payment_amount'];
+        const hasData = keysToCheck.some(key => params.has(key));
+        if (!hasData) return false;
 
         const data = {};
         for (const [key, value] of params.entries()) {
@@ -649,7 +743,7 @@ const receiptApp = (function () {
         // Force Notes Wrapping
         const notesField = clone.querySelector('#receipt_notes');
         if (notesField) {
-            notesField.style.whiteSpace = "pre-wrap"; 
+            notesField.style.whiteSpace = "pre-wrap";
             notesField.style.wordBreak = "break-word";
             notesField.style.overflowWrap = "break-word";
             notesField.style.width = "100%";
@@ -659,29 +753,29 @@ const receiptApp = (function () {
         // Signature Handling (Canvas -> Image)
         const originalCanvas = document.querySelector('#signature-pad canvas');
         const cloneWrapper = clone.querySelector('.signature-wrapper');
-        
+
         // We check if we have the original canvas, the wrapper in the clone, and if a signature has been made
         if (originalCanvas && cloneWrapper && signaturePad && !signaturePad.isEmpty()) {
             // Converts the original signature into a Base64 image
             const imgData = originalCanvas.toDataURL('image/png');
-            
+
             // Create an image element
             const img = document.createElement('img');
             img.src = imgData;
             img.style.width = '100%';
             img.style.height = '100%';
             img.style.objectFit = 'contain'; // Ensures the signature doesn't get distorted
-            
+
             // Clear the cloned wrapper (remove the empty canvas and the placeholder)
-            cloneWrapper.innerHTML = ''; 
-            
+            cloneWrapper.innerHTML = '';
+
             // Insert the image
             cloneWrapper.appendChild(img);
         } else {
             // If there is no signature, we can leave it blank
             if (cloneWrapper) {
-                 cloneWrapper.innerHTML = '';
-                 cloneWrapper.style.height = '50px';
+                cloneWrapper.innerHTML = '';
+                cloneWrapper.style.height = '50px';
             }
         }
 
@@ -720,7 +814,7 @@ const receiptApp = (function () {
             span.style.border = "none";
             span.style.padding = "0";
             span.style.backgroundColor = "transparent";
-            span.style.whiteSpace = "pre-wrap"; 
+            span.style.whiteSpace = "pre-wrap";
             span.style.wordBreak = "break-word";
             span.style.overflowWrap = "break-word";
             span.classList.remove('form-control');
