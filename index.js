@@ -1,5 +1,5 @@
 /**
- * Receitable - Simple Receipt Generator
+ * Receiptable - Simple Receipt Generator
  * @version 2.2.0
  * @author Tetsuaki Baba and Rubens Braz
  */
