@@ -1,20 +1,399 @@
-html {
-    font-size: 14px;
+/* ==========================================================================
+   RECEIPTABLE - MAIN STYLESHEET
+   ========================================================================== */
+
+/* TABLE OF CONTENTS:
+   1. Configuration & Variables
+   2. Global Resets & Body
+   3. Typography & Headers
+   4. Toolbar & Navigation
+   5. Form Elements & Signature Pad (Editable Fields)
+   6. PDF & Print Utilities
+   7. Mobile & Responsive Styles
+*/
+
+/* ==========================================================================
+   1. CONFIGURATION & VARIABLES
+   ========================================================================== */
+
+:root {
+    /* --- Color Palette --- */
+    --primary-color: #0053a6;           /* Main theme color */
+    --primary-text-color: #ffffff;      /* Text on top of primary color */
+    
+    /* --- Backgrounds --- */
+    --bg-body: #f3f4f6;                 /* Main page background */
+    --bg-paper: #ffffff;                /* Invoice paper background */
+    --bg-toolbar: #f8f9fa;              /* Toolbar background */
+    --bg-toolbar-hover: #ffffff;        /* Toolbar item hover background */
+
+    /* --- Text Colors --- */
+    --text-main: #374151;               /* Standard text color */
+    --text-muted: #6c757d;              /* Muted/Icon color */
+    --text-placeholder: #adb5bd;        /* Placeholder text color */
+    --text-secondary: #4b5563;          /* Secondary text color */
+
+    /* --- Borders & Lines --- */
+    --border-color: #e5e7eb;            /* Standard border */
+    --border-hover: #d1d5db;            /* Border color on hover */
+    --border-focus: #ced4da;            /* Border color on focus */
+
+    /* --- Typography --- */
+    --font-family-sans: 'Inter', sans-serif;
+    --font-family-mono: 'Roboto Mono', monospace;
+    
+    /* --- Spacing & Sizing --- */
+    --border-radius: 6px;               /* Standard border radius */
+    --toolbar-height: 36px;             /* Height of toolbar items */
+    --spacing-xs: 0.5px;                /* Letter spacing */
 }
 
-#pdf_element {
-    font-family: 'Roboto Mono', monospace;
+/* ==========================================================================
+   2. GLOBAL RESETS & BODY
+   ========================================================================== */
+
+body {
+    background-color: var(--bg-body);
+    font-family: var(--font-family-sans);
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased; /* Smooth fonts on MacOS */
 }
 
+/* Utility to prevent text selection (useful for UI elements) */
 .unselectable {
-    -moz-user-select: -moz-none;
-    -khtml-user-select: none;
-    -webkit-user-select: none;
-
-    /*
-      Introduced in IE 10.
-      See http://ie.microsoft.com/testdrive/HTML5/msUserSelect/
-    */
-    -ms-user-select: none;
     user-select: none;
+}
+
+/* ==========================================================================
+   3. TYPOGRAPHY & HEADERS
+   ========================================================================== */
+
+.header-title {
+    color: var(--primary-color);
+    letter-spacing: -0.5px;
+}
+
+.header-label-lg {
+    font-size: 0.9rem !important;
+    letter-spacing: 0.5px;
+}
+
+/* Decorative banner line */
+.header-banner {
+    background-color: var(--primary-color) !important;
+}
+
+/* Helper for primary colored text */
+.text-primary-custom {
+    color: var(--primary-color);
+}
+
+/* Extra small text utility */
+.x-small {
+    font-size: 0.7rem;
+    letter-spacing: var(--spacing-xs);
+}
+
+/* Monospace font application for numbers and data */
+#pdf_element .item-price,
+#pdf_element .item-quantity,
+#pdf_element .item-amount,
+#payment_amount,
+#receipt_number,
+#time,
+#date {
+    font-family: var(--font-family-mono);
+    letter-spacing: -0.5px;
+}
+
+#payment_description {
+    padding: 0px !important;
+}
+
+/* Date Picker Styling */
+.date-picker-input {
+    border: none;
+    border-bottom: 1px dashed transparent;
+    background: transparent;
+    font-family: 'Roboto Mono', monospace;
+    font-weight: 500;
+    color: #212529;
+    padding: 0;
+    width: auto;
+    display: inline-block;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: inherit;
+    text-align: right;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+.date-picker-input:hover {
+    border-bottom-color: #ced4da;
+    background-color: rgba(0,0,0,0.01);
+}
+
+.date-picker-input:focus {
+    outline: none;
+    box-shadow: none;
+    border-bottom: 1px solid var(--primary-color);
+    background-color: rgba(var(--primary-color), 0.05);
+}
+
+/* ==========================================================================
+   4. TOOLBAR & NAVIGATION
+   ========================================================================== */
+
+.navbar-spacer {
+    height: 80px;
+    transition: height 0.3s ease;
+}
+
+/* Container for toolbar buttons/selects */
+.toolbar-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--bg-toolbar);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 0 10px;
+    height: var(--toolbar-height);
+    transition: all 0.2s ease;
+}
+
+.toolbar-item:hover {
+    border-color: var(--border-hover);
+    background: var(--bg-toolbar-hover);
+}
+
+.toolbar-item i {
+    font-size: 1rem;
+    margin-right: 6px;
+    color: var(--text-muted);
+}
+
+/* Styled select inputs inside the toolbar */
+.toolbar-select {
+    border: none;
+    background: transparent;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: 0;
+    cursor: pointer;
+    outline: none;
+    box-shadow: none !important;
+    width: auto;
+}
+
+/* Circular Color Picker Wrapper */
+.color-picker-wrapper {
+    width: var(--toolbar-height);
+    height: var(--toolbar-height);
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid var(--border-color);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.color-picker-wrapper:hover {
+    transform: scale(1.1);
+    border-color: var(--border-hover);
+}
+
+/* Actual color input (hidden visually but accessible) */
+.form-control-color {
+    width: 150%;
+    height: 150%;
+    transform: translate(-25%, -25%);
+    padding: 0;
+    border: none;
+    cursor: pointer;
+}
+
+/* ==========================================================================
+   5. FORM ELEMENTS & SIGNATURE PAD
+   ========================================================================== */
+
+/* Contenteditable fields styling */
+.editable-field {
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.3);
+    padding: 1px 0;
+    min-width: 30px;
+    outline: none;
+    transition: all 0.2s;
+    cursor: text;
+    line-height: 1.4;
+}
+
+.editable-field:hover {
+    border-bottom-color: var(--border-focus);
+    background-color: rgba(0, 0, 0, 0.01);
+}
+
+.editable-field:focus {
+    border-bottom: 1px solid var(--primary-color);
+    background-color: rgba(var(--primary-color), 0.05);
+}
+
+/* Placeholder behavior for empty editable fields */
+.editable-field:empty:before {
+    content: attr(data-placeholder);
+    color: var(--text-placeholder);
+    font-style: italic;
+    font-weight: 400;
+}
+
+/* Prevents wrapping on specific fields until focused */
+.text-nowrap-custom {
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.text-nowrap-custom:focus {
+    white-space: normal;
+    overflow: visible;
+}
+
+/* Inputs inside payment box */
+#payment_description,
+#payment_amount {
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.3) !important;
+    border-radius: 0;
+}
+
+#payment_description:focus,
+#payment_amount:focus {
+    box-shadow: none;
+    border-bottom: 1px solid var(--primary-color) !important;
+}
+
+/* Signature Pad Styling */
+.signature-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100px;
+    border: 1px dashed var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: #fff;
+    cursor: crosshair;
+    transition: border-color 0.2s;
+}
+
+.signature-wrapper:hover {
+    border-color: var(--border-hover);
+}
+
+.signature-wrapper canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.signature-placeholder {
+    pointer-events: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--text-placeholder);
+    font-size: 0.8rem;
+    font-weight: 500;
+    opacity: 0.7;
+}
+
+/* ==========================================================================
+   6. PDF & PRINT UTILITIES
+   ========================================================================== */
+
+/* Prevents elements from being split across pages in PDF */
+.break-inside-avoid {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    display: block;
+}
+
+.signature-wrapper {
+    page-break-inside: avoid !important;
+}
+
+/* Ensures the PDF container is always white */
+#pdf_element {
+    background-color: var(--bg-paper) !important;
+}
+
+.pdf-clean-mode {
+    margin: 0 auto;
+}
+
+.pdf-clean-mode .editable-field {
+    border-bottom: none !important;
+    padding: 0 !important;
+}
+
+.pdf-clean-mode #payment_description,
+.pdf-clean-mode #payment_amount {
+    border-bottom: none !important;
+}
+
+.pdf-clean-mode .editable-field:empty::before {
+    content: "" !important; /* Remove placeholders in PDF */
+}
+
+.pdf-clean-mode .col-6 {
+    width: 50% !important;
+    max-width: 50% !important;
+}
+
+.pdf-clean-mode .col-6:last-child {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+/* ==========================================================================
+   7. MOBILE & RESPONSIVE STYLES
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    .navbar-spacer {
+        height: 150px;
+    }
+    
+    .navbar-brand {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .toolbar-actions {
+        width: 100%;
+        justify-content: center !important;
+        flex-wrap: wrap;
+        gap: 8px !important;
+    }
+    
+    .header-title {
+        font-size: 2rem;
+    }
+
+    .footer-actions {
+        flex-direction: column !important;
+        align-items: stretch !important; /* Full width buttons */
+        border-radius: 16px !important;  /* Less rounded on mobile stack */
+        gap: 12px !important;
+        padding: 20px !important;
+    }
+
+    .footer-actions button {
+        width: 100%;
+    }
 }

@@ -1,160 +1,214 @@
 <!doctype html>
 <html lang="en">
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Receitable</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+        <title>Receiptable - Simple Receipt</title>
+        <meta name="description" content="Simple and Free Receipt Generator. Create, sign, and download PDF receipts directly in your browser.">
+        <meta property="og:title" content="Receiptable - Simple Receipt Generator">
+        <meta property="og:description" content="Create professional receipts in seconds. No sign-up required, data saved locally in your browser.">
+        <meta property="og:type" content="website">
+        <!-- Favicon -->
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22 fill=%22%230d6efd%22><path d=%22M3 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3zm11 1v12H2V2h12z%22/><path d=%22M3.5 13h9a.5.5 0 0 0 0-1h-9a.5.5 0 0 0 0 1zm0-2h9a.5.5 0 0 0 0-1h-9a.5.5 0 0 0 0 1zm0-4h9a.5.5 0 0 0 0-1h-9a.5.5 0 0 0 0 1zm0-2h9a.5.5 0 0 0 0-1h-9a.5.5 0 0 0 0 1z%22/></svg>">
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <!-- CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+        <link href="./index.css?v=2.2.0" rel="stylesheet">
+    </head>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet">
-
-    <link href="./index.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
-    <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
-    <style>
-        .form-control {
-            border: none;
-            border-bottom: 1px solid #ced4da;
-            border-radius: 0;
-        }
-    </style>
-
-</head>
-
-<body>
-    <div class="container unselectable">
-        <nav class="navbar bg-light">
-            <div class="container-fluid">
-                <span class="navbar-brand mb-0 h1"><i class="bi bi-file-earmark-spreadsheet"></i>
-                    Receiptable
-                </span>
-                <span class="small" id="version"></span>
-            </div>
-        </nav>
-        <div class="row pt-4">
-            <div class="col-md-12 p-3">
-                <div class="card">
-                    <div id="pdf_element" class="ps-4 pe-4">
-                        <div class="card-body">
-                            <h1 class="mt-5 mb-5 bg-secondary text-white" id="title">RECEIPT</h1>
-                            <p>Date: <span id="date"></span></p>
-
-                            <div class="mb-3 row">
-                                <label for="inputPassword" class="col-sm-3 col-form-label">Received From: </label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control" id="input_received_from"
-                                    placeholder="fill in the name of the payer"
-                                        oninput="updateReceivedFrom(this);">
-
-                                </div>
-                            </div>
-
-                            <div class="mb-3 row">
-                                <label for="inputPassword" class="col-sm-3 col-form-label">Payment Amount: </label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control" id="input_payment_amount"
-                                    placeholder="fill in the amount including units (ex.100 USD)"
-                                        oninput="updatePaymentAmount(this);">
-                                </div>
-                            </div>
-
-                            <div class="mb-3 row">
-                                <label for="inputPassword" class="col-sm-3 col-form-label">Payment For: </label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control" id="input_payment_for"
-                                    placeholder="fill in the purpose of the payment"
-                                        oninput="updatePaymentFor(this);">
-                                </div>
-                            </div>
-
-                            <div class="mb-5 row">
-                                <label for="inputPassword" class="col-sm-3 col-form-label">Payment Address: </label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control" id="input_payment_address"
-                                    placeholder="fill in the address"
-                                        oninput="updatePaymentAddress(this);">
-                                </div>
-                            </div>
-
-                            <hr>
-                            Your Information
-                            <div class="mb-3 row">
-                                <label for="inputPassword" class="col-sm-3 col-form-label">Received By: </label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control" id="input_received_by"
-                                    placeholder="fill in your name"
-                                        oninput="updateReceivedBy(this);">
-                                </div>
-                            </div>
-                            <div class="mb-5 row">
-                                <label for="inputPassword" class="col-sm-3 col-form-label">Your Address: </label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control" id="input_received_address"
-                                        placeholder="fill in your address" oninput="updateReceivedAddress(this);">
-                                </div>
-                            </div>
-
-
-                            <div class="row">
-                                <p>
-                                    I, <span id="received_by"></span>, received from <span id="received_from"></span>
-                                    the
-                                    amount of <span id="payment_amount"></span> for payment of <span
-                                        id="payment_for"></span>
-                                </p>
-                            </div>
-                            <div class=" mb-0 d-flex justify-content-center">
-
-                                <div id="signature">
-                                    <canvas class="border text-center">
-                                    </canvas>
-                                </div>
-                            </div>
-
-                            <div class="mb-3  d-flex justify-content-center">
-                                Signature
-                            </div>
-
+    <body>
+        <div class="container unselectable">
+            <!-- General Configuration -->
+            <nav class="navbar fixed-top bg-white border-bottom py-2 shadow-sm">
+                <div class="container">
+                    <span class="navbar-brand mb-0 h1 fw-bold d-flex align-items-center gap-2">
+                        <i class="bi bi-receipt text-primary-custom fs-4"></i>
+                        <span style="font-family: 'Inter', sans-serif; letter-spacing: -0.5px; font-size: 1.2rem;">Receiptable</span>
+                    </span>
+                    <div class="d-flex gap-2 align-items-center toolbar-actions flex-wrap justify-content-end">
+                        <div class="toolbar-item" title="Date Format">
+                            <i class="bi bi-calendar-event text-muted"></i>
+                            <select id="dateFormatSelect" class="toolbar-select form-select form-select-sm">
+                                <option value="us">MM/DD/YYYY (US)</option>
+                                <option value="jp">YYYY-MM-DD (JP)</option>
+                                <option value="br">DD/MM/YYYY (BR)</option>
+                            </select>
+                        </div>
+                        <div class="toolbar-item" title="Time Format">
+                            <i class="bi bi-clock text-muted"></i>
+                            <select id="timeFormatSelect" class="toolbar-select form-select form-select-sm">
+                                <option value="24h">24h</option>
+                                <option value="12h">12h (AM/PM)</option>
+                            </select>
+                        </div>
+                        <div class="toolbar-item" title="Currency">
+                            <i class="bi bi-cash-coin text-muted"></i>
+                            <select id="currencySelect" class="toolbar-select form-select form-select-sm">
+                            </select>
+                        </div>
+                        <div class="toolbar-item" title="Language">
+                            <i class="bi bi-translate text-muted"></i>
+                            <select id="languageSelect" class="toolbar-select form-select form-select-sm">
+                                <option value="en">English</option>
+                                <option value="jp">日本語</option>
+                                <option value="pt">Português</option>
+                            </select>
+                        </div>
+                        <div class="color-picker-wrapper" title="Theme Color">
+                            <input type="color" class="form-control form-control-color" id="colorPicker" value="#2c3e50">
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="mb-3 d-grid gap-2 d-md-flex justify-content-md-end">
-                <button class="btn btn-warning p-2" onclick="signaturePad.clear();">Clear Signature</button>
-                <button class="btn btn-danger p-2" onclick="downloadPDF();">Download PDF</button>
-            </div>
-            <hr>
-            <div class="mb-3 d-grid gap-2 d-md-flex justify-content-md-end">
-                <input type="text" class="form-control" id="share_link">
-                <button class="btn btn-secondary p-2" onclick="showShareLink();">Create Share Link</button>
+            </nav>
+            <div class="navbar-spacer"></div>
+            <div class="row justify-content-center">
+                <!-- Receipt -->
+                <div class="col-lg-9 p-0">
+                    <div class="card shadow-lg border-0 rounded-3 overflow-hidden mb-5">
+                        <div id="pdf_element" class="bg-white p-4">
+                            <div class="card-body p-0">
+                                <div class="d-flex justify-content-between align-items-end mb-3">
+                                    <div>
+                                        <h2 class="fw-bold text-uppercase m-0 header-title" id="title" data-i18n="receipt_title">RECEIPT</h2>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="d-flex align-items-center justify-content-end gap-2">
+                                            <span class="text-muted small fw-bold text-uppercase" data-i18n="receipt_number_label">Receipt #</span>
+                                            <span contenteditable="true" class="fs-5 fw-bold editable-field text-end" id="receipt_number" title="Edit Number"></span>
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-end gap-2 mt-1">
+                                            <span class="text-muted small fw-bold text-uppercase" data-i18n="date_label">Date:</span>
+                                            <input type="date" id="date" class="form-control date-picker-input" title="Click to change date">
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-end gap-2 mt-1">
+                                            <span class="text-muted small fw-bold text-uppercase" data-i18n="time_label">Time:</span>
+                                            <input type="time" id="time" class="form-control date-picker-input" title="Click to change time">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="header-banner mb-4" style="height: 4px; width: 100%; border-radius: 2px;"></div>
+                                <div class="row mb-4 gx-5">
+                                    <div class="col-6">
+                                        <h6 class="text-uppercase text-muted fw-bold mb-2 header-label-lg" data-i18n="received_from_title">Received From</h6>
+                                        <div class="d-flex align-items-center gap-2 fw-bold fs-5 mb-1 text-nowrap-custom">
+                                            <i class="small bi bi-person"></i>
+                                            <span contenteditable="true" class="editable-field" id="received_from_name" data-placeholder="Name / Company"></span>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2 mb-1 fs-6">
+                                            <i class="small bi bi-geo-alt"></i> <span contenteditable="true" class="editable-field" id="received_from_address" data-placeholder="Address"></span>
+                                        </div>
+                                        <div class="contact-line d-flex align-items-center gap-2 text-muted small mt-2 mb-2">
+                                            <i class="small bi bi-telephone"></i>
+                                            <span contenteditable="true" class="editable-field" id="received_from_phone" data-placeholder="Phone"></span>
+                                        </div>
+                                        <div class="contact-line d-flex align-items-center gap-2 text-muted small">
+                                            <i class="small bi bi-envelope"></i>
+                                            <span contenteditable="true" class="editable-field" id="received_from_email" data-placeholder="Email"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <h6 class="text-uppercase text-muted fw-bold mb-2 header-label-lg" data-i18n="from_title">Issuer / Merchant</h6>
+                                        <div class="d-flex align-items-center justify-content-end gap-2 fw-bold fs-5 mb-1 text-nowrap-custom">
+                                            <span contenteditable="true" class="editable-field text-end" id="issuer_name" data-placeholder="Name / Company"></span>
+                                            <i class="small bi bi-person"></i>
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-end gap-2 mb-1 fs-6">
+                                            <span contenteditable="true" class="editable-field text-end" id="issuer_address" data-placeholder="Address"></span>
+                                            <i class="small bi bi-geo-alt"></i>
+                                        </div>
+                                        <div class="contact-line d-flex align-items-center justify-content-end gap-2 text-muted small mt-2 mb-2">
+                                            <span contenteditable="true" class="editable-field text-end" id="issuer_phone" data-placeholder="Phone"></span>
+                                            <i class="small bi bi-telephone"></i>
+                                        </div>
+                                        <div class="contact-line d-flex align-items-center justify-content-end gap-2 text-muted small">
+                                            <span contenteditable="true" class="editable-field text-end" id="issuer_email" data-placeholder="Email"></span>
+                                            <i class="small bi bi-envelope"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-2 mb-3">
+                                    <div class="p-3 bg-light rounded border">
+                                        <div class="row align-items-end">
+                                            <div class="col-8">
+                                                <label class="text-uppercase text-muted fw-bold small mb-1" data-i18n="col_description">Payment For</label>
+                                                <input type="text" class="form-control fw-bold border-0 bg-transparent ps-0 fs-5" id="payment_description" placeholder="...">
+                                            </div>
+                                            <div class="col-4 text-end">
+                                                <label class="text-uppercase text-muted fw-bold small mb-1" data-i18n="total_label">Amount</label>
+                                                <div class="d-flex justify-content-end align-items-center">
+                                                    <span class="fs-5 me-1 currency-symbol">$</span>
+                                                    <input type="number" class="form-control fw-bold border-0 bg-transparent p-0 text-end fs-5 text-primary-custom" id="payment_amount" placeholder="0.00" step="0.01">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row g-4 mt-1">
+                                    <div class="col-12">
+                                        <h6 class="text-uppercase text-muted fw-bold small mb-2" data-i18n="notes_title">Notes</h6>
+                                        <div contenteditable="true" class="editable-field d-block text-muted small fst-italic" id="receipt_notes" data-placeholder="..." style="min-height: 60px; border: 1px dashed #eee; padding: 8px;"></div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="h-100 break-inside-avoid">
+                                            <div class="row mt-3">
+                                                <div class="col-12">
+                                                    <p id="receipt_sentence" class="text-muted fst-italic"></p>
+                                                </div>
+                                            </div>
+                                            <div id="signature-pad" class="signature-wrapper mb-2" style="height: 140px;">
+                                                <canvas></canvas>
+                                                <div class="signature-placeholder" data-i18n="sign_here">Sign Here</div>
+                                            </div>
+                                            <div class="text-center mb-2">
+                                                <h6 class="mb-3" data-i18n="signature_title">Signature</h6>
+                                                <button class="btn btn-warning rounded-pill no-print">
+                                                    <i class="bi bi-x-circle me-1"></i><span id="btn_clear_sign" data-i18n="btn_clear_sign">Clear signature</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-5 pt-3 border-top text-center text-muted">
+                                    <a id="pdf_recreate_link" href="#" target="_blank" class="text-decoration-none text-muted small" data-i18n="pdf_recreate_link"> Click here to recreate Receipt </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Buttons and Footer -->
+                <div class="col-lg-9 mb-5">
+                    <div class="d-flex gap-2 justify-content-center align-items-center bg-white p-3 rounded-pill shadow-sm border footer-actions">
+                        <button class="btn btn-danger rounded-pill px-4" onclick="receiptApp.clearData();">
+                            <i class="bi bi-trash me-1"></i> <span data-i18n="btn_clear">Clear inputs</span>
+                        </button>
+                        <button class="btn btn-dark rounded-pill px-4" id="btn_copy_link" onclick="receiptApp.copyShareLink();">
+                            <i class="bi bi-link-45deg me-1"></i> <span data-i18n="btn_copy_link">Copy Link</span>
+                        </button>
+                        <button class="btn btn-primary rounded-pill px-4" onclick="receiptApp.downloadPDF();">
+                            <i class="bi bi-download me-2"></i> <span data-i18n="btn_download_pdf">PDF</span>
+                        </button>
+                        <input type="text" id="share_link" readonly style="position:absolute; left:-9999px;">
+                    </div>
+                    <footer class="text-center text-muted mt-5 pb-4 small">
+                        <p data-i18n="footer_privacy">Data remains local. Auto-saved in your browser.</p>
+                        <div class="opacity-75"> 2025 &copy; Receiptable. <br> Original Project by Tetsuaki Baba <a href="https://github.com/TetsuakiBaba/invoicable" target="_blank"><i class="bi bi-github"></i></a>
+                            <br> Refactoring by Rubens Braz <a href="https://github.com/rubensbraz" target="_blank"><i class="bi bi-github"></i></a>
+                        </div>
+                    </footer>
+                </div>
             </div>
         </div>
-
-
-        <hr>
-        <footer class="text-center">
-            <p class="small">
-                The data read will not be sent outside the system. Please refer to the source code for details. The
-                author assumes no responsibility for any damage or loss caused by this system.
-            </p>
-            2022 &copy; Tetsuaki Baba <a href="https://github.com/TetsuakiBaba/receiptable" target="_blank"><i
-                    class="bi bi-github"></i></a>
-        </footer>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3"
-        crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/read-excel-file@5.x/bundle/read-excel-file.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
-        integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
-    <script src="./index.js"></script>
-</body>
+        <!-- JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+        <script src="./index.js?v=2.2.0"></script>
+    </body>
 
 </html>

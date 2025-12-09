@@ -1,2 +1,80 @@
-# RECEIPTABLE
-Ultra simple receipt management system for small businesses.
+<div align="center">
+  <h1>📄 Receiptable</h1>
+  <p>
+    <strong>The privacy-first, ultra-simple receipt generator for freelancers and small businesses.</strong>
+  </p>
+
+  <p>
+    <a href="./README.pt.md">🇧🇷 Português</a> |
+    <a href="./README.jp.md">🇯🇵 日本語</a>
+  </p>
+
+  <p>
+    <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
+    <img src="https://img.shields.io/badge/privacy-100%25-green.svg" alt="Privacy">
+    <img src="https://img.shields.io/badge/platform-web-orange.svg" alt="Platform">
+  </p>
+</div>
+
+<br />
+
+**Receiptable** is a lightweight, browser-based tool designed to create beautiful, professional receipts in seconds. No sign-ups, no backend servers, and no data tracking. Everything happens locally in your browser.
+
+> 💡 **Tip:** Need to create **Invoices**? Check out our sibling project [Invoicable](https://github.com/TetsuakiBaba/invoicable).
+
+![Receiptable Screenshot](./example.png)
+
+## ✨ Key Features
+
+* **⚡ Edit in Place:** Click any text field to edit it directly. What you see is what you get (WYSIWYG).
+* **🌍 Internationalization:** Full support for **English**, **Portuguese**, and **Japanese**.
+* **💱 Multi-Currency:** Built-in support for the top 20 global currencies (USD, EUR, JPY, BRL, etc.) with correct symbol formatting.
+* **🎨 Custom Themes:** Personalize your receipt with a built-in color picker to match your brand.
+* **📅 Date Formats:** Support for US (MM/DD), BR (DD/MM), and JP (YYYY-MM) date formats.
+* **🔒 Privacy First:** Uses **Local Storage** to save your progress. Your financial data never leaves your device.
+* **📄 Smart PDF:** Generates clean, A4-optimized PDFs ready for printing or emailing.
+* **🔗 Shareable Links:** Generate a URL that contains all the receipt data to share or save templates.
+
+## 🚀 Getting Started
+
+You can use Receiptable directly from the web or run it locally.
+
+### Run Locally
+
+1.  Clone this repository:
+    ```bash
+    git clone [https://github.com/TetsuakiBaba/receiptable.git](https://github.com/TetsuakiBaba/receiptable.git)
+    ```
+2.  Navigate to the folder:
+    ```bash
+    cd receiptable
+    ```
+3.  Open `index.html` in any modern web browser.
+
+## 🛠️ How to Use
+
+1.  **Select Preferences:** Use the top toolbar to select your Language, Currency, Date Format, and Brand Color.
+2.  **Edit Details:** Click on "Client Name", "Address", or any other field to type your information.
+3.  **Payment Info:** Fill in payment details or notes at the bottom.
+4.  **Export:** Click **Download PDF** to save the file or **Copy Link** to save the state URL.
+
+## 🤝 Contributing
+
+Contributions are welcome! If you have suggestions for improvements or new features:
+
+1.  Fork the project.
+2.  Create your feature branch (`git checkout -b feature/AmazingFeature`).
+3.  Commit your changes (`git commit -m 'Add some AmazingFeature'`).
+4.  Push to the branch (`git push origin feature/AmazingFeature`).
+5.  Open a Pull Request.
+
+## 📜 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+---
+<div align="center">
+  <p>2025 &copy; Receiptable.</p>
+  <small>Original Project by <a href="https://github.com/TetsuakiBaba">Tetsuaki Baba</a>.</small><br>
+  <small>Refactored by <a href="https://github.com/rubensbraz">Rubens Braz</a>.</small>
+</div>
